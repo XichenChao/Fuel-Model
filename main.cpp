@@ -59,7 +59,7 @@ MatrixXd gamma_half_matrix(double theta, double v0, double zeta, double D1, doub
 }
 
 // Main SDE integrator function
-void integrator_SDE_fuel(int T, int N, double dt, double v0, double D1, double D2, double D3, double zeta_theta, double J0, double R, double L, double zeta, double c, double k, int dump) {
+void integrator_SDE_fuel(int T, int N, double dt, double n0, double v0, double D1, double D2, double D3, double zeta_theta, double J0, double R, double L, double zeta, double c, double k, int dump) {
     // Initialize random number generator
     random_device rd;
     //mt19937 gen(rd());
@@ -68,7 +68,7 @@ void integrator_SDE_fuel(int T, int N, double dt, double v0, double D1, double D
     normal_distribution<> noise_dist(0.0, 1.0);
 
     // Particle properties
-    vector<double> x(N), y(N), phi(N), n(N, 200.0);
+    vector<double> x(N), y(N), phi(N), n(N, n0);
     for (int i = 0; i < N; ++i) {
         x[i] = uniform_real_distribution<>(-L, L)(gen);
         y[i] = uniform_real_distribution<>(-L, L)(gen);
@@ -148,10 +148,11 @@ int main() {
     double dt = 0.01;
     int T = 20000;
     int N = 40;
+    double n0 = 200;                                    // initial fuel
     double v0 = 0.24;
-    double D1 = 0.1;
-    double D2 = 1.0 / 8.0;
-    double D3 = 1.0 / 800.0;
+    double D1 = 0.1;                                    // rotational noise
+    double D2 = 1.0 / 8.0;                              // fuel noise
+    double D3 = 1.0 / 800.0;                            // translational noise
     double zeta_theta = 200.0;
     double zeta = 8.0;
     double J0 = 8.75;
@@ -161,7 +162,7 @@ int main() {
     double k = 0.03;
     int dump = static_cast<int>(round(1.0 / dt));
 
-    integrator_SDE_fuel(T, N, dt, v0, D1, D2, D3, zeta_theta, J0, R, L, zeta, c, k, dump);
+    integrator_SDE_fuel(T, N, dt, n0, v0, D1, D2, D3, zeta_theta, J0, R, L, zeta, c, k, dump);
 
     return 0;
 }
